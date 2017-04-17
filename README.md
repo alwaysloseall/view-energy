@@ -16,9 +16,8 @@ a view-model Driver
         <title>view-energy</title>
     </head>
     <body>
-        <div>
-            {{ hello }}
-        </div>
+        <div>{{ hello }}</div>
+        <div ve-bind="hello"></div>
         <script src="view-energy.js"></script>
     </body>
     </html>
@@ -33,3 +32,13 @@ a view-model Driver
 ```
 ### Result
 > Hello World
+> Hello World
+
+### Try Change
+```javascript
+    Vem.hello = 'Hello!';
+```
+
+### Result
+> Hello
+> Hello
