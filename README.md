@@ -4,7 +4,7 @@ a view-model Driver
 ## 这个是什么？
 * 没事的时候自己撸的一个小框架
 * 设计思想来自avalon，采用了Object.defineProperty，使用方式跟vue类似
-* 现在只做好了view跟view-model的绑定，空闲之间可以撸着玩做之后的
+* 现在只做好了view跟view-model的绑定，空闲之间可以撸着玩做之后的内容
 
 ## Getting Started
 
