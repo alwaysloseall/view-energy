@@ -32,6 +32,7 @@ a view-model Driver
 ```
 ### Result
 > Hello World
+
 > Hello World
 
 ### Try Change
@@ -41,4 +42,5 @@ a view-model Driver
 
 ### Result
 > Hello
+
 > Hello
