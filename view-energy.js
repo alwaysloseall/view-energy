@@ -12,8 +12,13 @@
          * }
          */
 
-         //---虚拟dom
-         this.__virtualDom = [];
+        //---虚拟dom
+        this.__virtualDom = [];
+        //---结构
+        /**
+         * this.data: { key: value }
+         * __virtualDom[key] = [{ node: HTMLElement }, { node: HTMLElement, html: @string }]
+         */
 
 
         if (typeof options != 'object') {  throw new Error('not is an object'); }
@@ -27,11 +32,11 @@
                         return data[key];
                     },
                     set: function (newValue) {
-                        console.time('view同步成功，共计用时：');
+                        VE.Debuger('sync-start');
                         var that = this;
                         if (data[key] != newValue) {
                             data[key] = newValue;
-                            console.log('set a newValue====', newValue);
+                            VE.Debuger('setNewValue', newValue);
                             if('undefined' != typeof that.__virtualDom[key] && that.__virtualDom[key].length > 0) {
                                 that.__virtualDom[key].forEach(function(element) {
                                    if (!element.html) { //---使用指令绑定的情况
@@ -44,7 +49,7 @@
                                 });
                             }
                         }
-                        console.timeEnd('view同步成功，共计用时：');
+                        VE.Debuger('sync-end');
                     }
                 });
             }
@@ -70,13 +75,46 @@
                 }
             }
         }).call(this);
-        console.time('初次渲染共计用时：');
+        VE.Debuger('firtsRender-start');
         autoRender.call(this);
-        console.timeEnd('初次渲染共计用时：');
+        VE.Debuger('firtsRender-end');
     }
     //end---VE构造函数
 
+    //---实例特殊方法
+
     VE.prototype.$reload = traversal;
+
+    //---end实例特殊方法
+
+    //---全局配置项
+
+    VE.config = {
+        DEBUG: true
+    }
+
+    VE.__debug = {
+        'sync-start': function () {
+            console.time('view同步成功，共计用时：');
+        },
+        'sync-end': function () {
+            console.timeEnd('view同步成功，共计用时：');
+        },
+        'firtsRender-start': function () {
+            console.time('初次渲染共计用时：');
+        },
+        'firtsRender-end': function () {
+            console.timeEnd('初次渲染共计用时：');
+        },
+        'setNewValue': function (newValue) {
+            console.info('====set a newValue====', newValue);
+        }
+    };
+
+    VE.Debuger = function (command, params) {
+        if (!VE.config.DEBUG) { return; }
+        VE.__debug[command](params);
+    };
 
 
     /**
@@ -104,7 +142,7 @@
                 html = html.replace(reg, function (match, p1, p2, p3) {
                     if (!that.__virtualDom[p2]) {
                         that.__virtualDom[p2] = [
-                        { node: node, html: html }
+                            { node: node, html: html }
                         ]
                     } else {
                         that.__virtualDom[p2].push({ node: node, html: html });
