@@ -4,6 +4,10 @@
          * options: {
          *  data: {
          *    key: value
+         *  },
+         *  methods: {
+         *    fun1: function () {
+         *    }
          *  }
          * }
          */
@@ -13,7 +17,7 @@
 
 
         if (typeof options != 'object') {  throw new Error('not is an object'); }
-        var data = options.data;
+        var data = options.data, methods = options.methods;
         if (typeof data == 'object') { //---处理data(model)
             for (var key in data) {
                 Object.defineProperty(this, key, {
@@ -45,8 +49,30 @@
                 });
             }
         }
-
+        /**
+         *  methods处理暂时写作匿名函数自调，防止变量污染
+         *  以后将data和methods处理单独封装方法
+         */
+        (function () {
+            var methods = options.methods;
+            if (typeof methods == 'object') { //处理methods
+                for (var key in methods) {
+                    Object.defineProperty(this, key, {
+                        configurable: false,
+                        enumerable: false,
+                        get: function () {
+                            return methods[key];
+                        },
+                        set: function (newValue) {
+                            console.error('目前不能直接为methods赋值');
+                        }
+                    });
+                }
+            }
+        }).call(this);
+        console.time('初次渲染共计用时：');
         autoRender.call(this);
+        console.timeEnd('初次渲染共计用时：');
     }
     //end---VE构造函数
 
@@ -62,8 +88,9 @@
         var that = this;
         //对node的处理
         if(node && node.nodeType === 1) {
-            var veBind = node.getAttribute('ve-bind'), html = node.innerHTML, reg = /(\{\{\s*)(\S*)(\s*\}\})/;
-            if (typeof veBind == 'string') {
+            var veBind = node.getAttribute('ve-bind'), html = node.innerHTML, reg = /(\{\{\s*)(\S*)(\s*\}\})/,
+                veClick = node.getAttribute('ve-click');
+            if (typeof veBind == 'string') { //---veBind
                 var value = that[veBind];
                 if (!that.__virtualDom[veBind]) {
                     that.__virtualDom[veBind] = [
@@ -73,7 +100,7 @@
                     that.__virtualDom[veBind].push({ node: node });
                 }
                 node.innerHTML = value;
-            } else if (node.tagName != 'BODY' && reg.test(html)) {
+            } else if (node.tagName != 'BODY' && reg.test(html)) { //--- {{ javascript }}
                 html = html.replace(reg, function (match, p1, p2, p3) {
                     if (!that.__virtualDom[p2]) {
                         that.__virtualDom[p2] = [
@@ -85,6 +112,11 @@
                     return that[p2];
                 });
                 node.innerHTML = html;
+            }
+            if (typeof veClick == 'string') { //---veClick
+                var handleClick = that[veClick];
+                //===添加事件，以及写入__virtualDom
+                node.addEventListener('click', handleClick, false);
             }
         }
         var i = 0, childNodes = node.childNodes,item;
