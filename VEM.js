@@ -6,6 +6,7 @@ var vem1 = new VE({
     methods: {
         showHello: function () {
             alert('hello!');
+            console.log(this);
         }
     }
 });

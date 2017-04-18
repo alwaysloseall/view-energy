@@ -116,7 +116,7 @@
             if (typeof veClick == 'string') { //---veClick
                 var handleClick = that[veClick];
                 //===添加事件，以及写入__virtualDom
-                node.addEventListener('click', handleClick, false);
+                node.addEventListener('click', handleClick.bind(this), false);
             }
         }
         var i = 0, childNodes = node.childNodes,item;
