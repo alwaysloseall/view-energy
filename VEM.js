@@ -9,5 +9,10 @@ var vem1 = new VE({
             alert('hello!');
             console.log(this);
         }
+    },
+    watch: {
+        a: function (oldValue, newValue) {
+            console.log('watch a!!!');
+        }
     }
 });

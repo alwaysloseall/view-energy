@@ -25,40 +25,12 @@
 
 
         if (typeof options != 'object') {  throw new Error('not is an object'); }
-        var data = options.data, methods = options.methods;
+        var data = options.data, methods = options.methods, watch = options.watch,
+            hasWatch = typeof watch == 'object' ? true : false;
         if (typeof data == 'object') { //---处理data(model)
-            // for (let key in data) { //---！！！这里必须使用let 为for in内部提供独立的作用域
-            //     Object.defineProperty(this, key, {
-            //         configurable: false,
-            //         enumerable: false,
-            //         get: function () {
-            //             return data[key];
-            //         },
-            //         set: function (newValue) {
-            //             VE.Debuger('sync-start');
-            //             var that = this;
-            //             if (data[key] != newValue) {
-            //                 data[key] = newValue;
-            //                 VE.Debuger('setNewValue', newValue);
-            //                 if('undefined' != typeof that.__virtualDom[key] && that.__virtualDom[key].length > 0) {
-            //                     that.__virtualDom[key].forEach(function(element) {
-            //                        if (!element.html) { //---使用指令绑定的情况
-            //                            element.node.innerHTML = newValue;
-            //                        } else { //---使用{{ javascript }}形式绑定的情况
-            //                            element.node.innerHTML = element.html.replace(/(\{\{\s*)(\S*)(\s*\}\})/, function (match, p1, p2, p3) {
-            //                                 return that[p2];
-            //                            });
-            //                        }
-            //                     });
-            //                 }
-            //             }
-            //             VE.Debuger('sync-end');
-            //         }
-            //     });
-            // }
             
             for (var key in data) {
-                (function (key) {
+                (function (key) { //---闭包保留key的环境
                     Object.defineProperty(this, key, {
                         configurable: false,
                         enumerable: false,
@@ -66,9 +38,10 @@
                             return data[key];
                         },
                         set: function (newValue) {
-                            VE.Debuger('sync-start');
-                            var that = this;
+                            //---局部渲染view
+                            var that = this, oldValue = data[key];
                             if (data[key] != newValue) {
+                                VE.Debuger('sync-start');
                                 data[key] = newValue;
                                 VE.Debuger('setNewValue', newValue);
                                 if('undefined' != typeof that.__virtualDom[key] && that.__virtualDom[key].length > 0) {
@@ -82,8 +55,15 @@
                                     }
                                     });
                                 }
+                                if (hasWatch) {
+                                    if (typeof watch[key] == 'function') {
+                                        watch[key].call(this, oldValue, newValue);
+                                        allowWatch = false;
+                                    }
+                                }
+                                VE.Debuger('sync-end');
                             }
-                            VE.Debuger('sync-end');
+                            //---end局部渲染view
                         }
                     });
                 }).call(this, key);

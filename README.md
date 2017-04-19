@@ -41,6 +41,6 @@ a view-model Driver
 ```
 
 ### Result
-> Hello
+> Hello！
 
-> Hello
+> Hello！
