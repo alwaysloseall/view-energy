@@ -8,6 +8,9 @@
          *  methods: {
          *    fun1: function () {
          *    }
+         *  },
+         *  watch: {
+         *    @(data[key]): function () { //TODO }
          *  }
          * }
          */
@@ -24,35 +27,68 @@
         if (typeof options != 'object') {  throw new Error('not is an object'); }
         var data = options.data, methods = options.methods;
         if (typeof data == 'object') { //---处理data(model)
+            // for (let key in data) { //---！！！这里必须使用let 为for in内部提供独立的作用域
+            //     Object.defineProperty(this, key, {
+            //         configurable: false,
+            //         enumerable: false,
+            //         get: function () {
+            //             return data[key];
+            //         },
+            //         set: function (newValue) {
+            //             VE.Debuger('sync-start');
+            //             var that = this;
+            //             if (data[key] != newValue) {
+            //                 data[key] = newValue;
+            //                 VE.Debuger('setNewValue', newValue);
+            //                 if('undefined' != typeof that.__virtualDom[key] && that.__virtualDom[key].length > 0) {
+            //                     that.__virtualDom[key].forEach(function(element) {
+            //                        if (!element.html) { //---使用指令绑定的情况
+            //                            element.node.innerHTML = newValue;
+            //                        } else { //---使用{{ javascript }}形式绑定的情况
+            //                            element.node.innerHTML = element.html.replace(/(\{\{\s*)(\S*)(\s*\}\})/, function (match, p1, p2, p3) {
+            //                                 return that[p2];
+            //                            });
+            //                        }
+            //                     });
+            //                 }
+            //             }
+            //             VE.Debuger('sync-end');
+            //         }
+            //     });
+            // }
+            
             for (var key in data) {
-                Object.defineProperty(this, key, {
-                    configurable: false,
-                    enumerable: false,
-                    get: function () {
-                        return data[key];
-                    },
-                    set: function (newValue) {
-                        VE.Debuger('sync-start');
-                        var that = this;
-                        if (data[key] != newValue) {
-                            data[key] = newValue;
-                            VE.Debuger('setNewValue', newValue);
-                            if('undefined' != typeof that.__virtualDom[key] && that.__virtualDom[key].length > 0) {
-                                that.__virtualDom[key].forEach(function(element) {
-                                   if (!element.html) { //---使用指令绑定的情况
-                                       element.node.innerHTML = newValue;
-                                   } else { //---使用{{ javascript }}形式绑定的情况
-                                       element.node.innerHTML = element.html.replace(/(\{\{\s*)(\S*)(\s*\}\})/, function (match, p1, p2, p3) {
-                                            return that[p2];
-                                       });
-                                   }
-                                });
+                (function (key) {
+                    Object.defineProperty(this, key, {
+                        configurable: false,
+                        enumerable: false,
+                        get: function () {
+                            return data[key];
+                        },
+                        set: function (newValue) {
+                            VE.Debuger('sync-start');
+                            var that = this;
+                            if (data[key] != newValue) {
+                                data[key] = newValue;
+                                VE.Debuger('setNewValue', newValue);
+                                if('undefined' != typeof that.__virtualDom[key] && that.__virtualDom[key].length > 0) {
+                                    that.__virtualDom[key].forEach(function(element) {
+                                    if (!element.html) { //---使用指令绑定的情况
+                                        element.node.innerHTML = newValue;
+                                    } else { //---使用{{ javascript }}形式绑定的情况
+                                        element.node.innerHTML = element.html.replace(/(\{\{\s*)(\S*)(\s*\}\})/, function (match, p1, p2, p3) {
+                                                return that[p2];
+                                        });
+                                    }
+                                    });
+                                }
                             }
+                            VE.Debuger('sync-end');
                         }
-                        VE.Debuger('sync-end');
-                    }
-                });
+                    });
+                }).call(this, key);
             }
+
         }
         /**
          *  methods处理暂时写作匿名函数自调，防止变量污染
@@ -116,6 +152,7 @@
         VE.__debug[command](params);
     };
 
+    //---end全局配置项
 
     /**
      * 使用递归的方式先序遍历DOM树

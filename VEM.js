@@ -1,7 +1,8 @@
 var vem1 = new VE({
     data: {
         a: 'this is a',
-        b: Date()
+        b: Date(),
+        c: 'asdasdsad'
     },
     methods: {
         showHello: function () {
