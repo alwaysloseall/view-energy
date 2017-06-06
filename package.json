@@ -1,7 +1,7 @@
 {
   "name": "view-energy",
   "version": "1.0.0",
-  "description": "a view-model \u0016Driver\u001b[D\u001b[D\u001b[D\u001b[D\u001b[d",
+  "description": "a view-model Driver",
   "main": "view-energy.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
