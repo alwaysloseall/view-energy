@@ -1,3 +1,6 @@
+// VE.config = {
+//     DEBUG: false
+// }
 var vem1 = new VE({
     data: {
         a: 'this is a',

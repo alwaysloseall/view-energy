@@ -1,3 +1,4 @@
+'use strict';
 (function (window, document) {
     function VE (options) { //---VE构造函数
         /**
@@ -58,7 +59,7 @@
                                 if (hasWatch) {
                                     if (typeof watch[key] == 'function') {
                                         watch[key].call(this, oldValue, newValue);
-                                        allowWatch = false;
+                                        // allowWatch = false;
                                     }
                                 }
                                 VE.Debuger('sync-end');
@@ -124,6 +125,9 @@
         },
         'setNewValue': function (newValue) {
             console.info('====set a newValue====', newValue);
+        },
+        'reload': function () {
+            
         }
     };
 
