@@ -173,9 +173,24 @@
                 node.innerHTML = html;
             }
             if (typeof veClick == 'string') { //---veClick
-                var handleClick = that[veClick];
+                var function_params_list = veClick.split('(');
+                var f = function_params_list[0];
+                var params = [];
+                if(function_params_list[1]){
+                    params = function_params_list[1].split(')')[0].split(',');
+                }
+                for(var key in params){
+                    console.log(params[key]);
+                    if (that[params[key]]) { params[key] = 'this.' + params[key]; }
+                }
+                console.log(f);
+                console.log(params);
+
+                var handleClick = that[f];
+                var handleParams = params.join(',');
                 //===添加事件，以及写入__virtualDom
-                node.addEventListener('click', handleClick.bind(this), false);
+                var handleClick2 = 'handleClick.bind(this, ' + handleParams + ')';
+                node.addEventListener('click', eval(handleClick2), false);  
             }
         }
         var i = 0, childNodes = node.childNodes,item;

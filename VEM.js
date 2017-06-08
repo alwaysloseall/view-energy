@@ -8,9 +8,10 @@ var vem1 = new VE({
         c: 'asdasdsad'
     },
     methods: {
-        showHello: function () {
+        showHello: function (data, test) { 
             alert('hello!');
-            console.log(this);
+            console.log(data);
+            console.log(test);
         }
     },
     watch: {
