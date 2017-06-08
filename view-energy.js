@@ -27,9 +27,14 @@
         
         if (typeof options != 'object') {  throw new Error('Constructor function VE argument[0] must be an object'); }
         if (typeof options.el != 'undefined') {
-            if (options.el == 'body') { throw new Error('el options can not be body'); }
-            if (!document.querySelector(options.el)) { throw new Error('el selector can not find a valid element, el selector string:"' + options.el + '"'); }
-            this.$el = document.querySelector(options.el);
+            if (options.el == 'body') { throw new Error('el options can not be body'); }            
+            if (typeof options.el == 'object') { //el为DOM对象时
+                if (options.el === null) { throw new Error('el options can not be null'); }
+                if (options.el.nodeType === 1 && typeof options.el.nodeName) {
+                    this.$el = options.el;
+                } else { throw new Error('el options must be a DOM object or valid selector string'); }
+            } else if (!document.querySelector(options.el)) { throw new Error('el selector can not find a valid element, el selector string:"' + options.el + '"'); }
+            else { this.$el = document.querySelector(options.el); }
         } else {
             this.$el = document.body;
         }
