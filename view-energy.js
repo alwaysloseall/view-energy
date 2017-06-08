@@ -70,6 +70,7 @@
                                 }
                                 if (hasWatch) {
                                     if (typeof watch[key] == 'function') {
+                                        VE.Debuger('watchValue', { key: key, oldValue: oldValue, newValue: newValue });
                                         watch[key].call(this, oldValue, newValue);
                                         // allowWatch = false;
                                     }
@@ -137,6 +138,9 @@
         },
         'setNewValue': function (newValue) {
             console.info('====set a newValue====', newValue);
+        },
+        'watchValue': function (data) {
+            console.info('====watched triggered====', data);
         },
         'reload': function () {
             

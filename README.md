@@ -58,4 +58,11 @@ a view-model Driver
     实例内的方法，每个键都可以通过```vem[key]()```调用，也可以在html上面调用
     - ```watch``` Object-
     监听实例上的model变化
+### VE.config
+> 全局配置项
+```javascript
+    VE.config = {
+        DEBUG: false //关闭debug，默认为开启
+    }
+```
 ### 哇我要哭出来了 以后再写！！
