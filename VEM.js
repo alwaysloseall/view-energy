@@ -2,6 +2,7 @@
 //     DEBUG: false
 // }
 var vem1 = new VE({
+    el: '#Ve',
     data: {
         a: 'this is a',
         b: Date(),

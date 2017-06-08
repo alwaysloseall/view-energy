@@ -24,8 +24,15 @@
          * __virtualDom[key] = [{ node: HTMLElement }, { node: HTMLElement, html: @string }]
          */
 
-
-        if (typeof options != 'object') {  throw new Error('not is an object'); }
+        
+        if (typeof options != 'object') {  throw new Error('Constructor function VE argument[0] must be an object'); }
+        if (typeof options.el != 'undefined') {
+            if (options.el == 'body') { throw new Error('el options can not be body'); }
+            if (!document.querySelector(options.el)) { throw new Error('el selector can not find a valid element, el selector string:"' + options.el + '"'); }
+            this.$el = document.querySelector(options.el);
+        } else {
+            this.$el = document.body;
+        }
         var data = options.data, methods = options.methods, watch = options.watch,
             hasWatch = typeof watch == 'object' ? true : false;
         if (typeof data == 'object') { //---处理data(model)
@@ -191,7 +198,7 @@
      //---视图层view, dom操作方法
     function autoRender() {
         var DOM = document.all, virtualDom = [], html = '', body = document.body;
-        traversal.call(this, body);
+        traversal.call(this, this.$el);
     }
 
     return window.VE = VE;
