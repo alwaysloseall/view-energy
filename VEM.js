@@ -1,7 +1,9 @@
 // VE.config = {
 //     DEBUG: false
 // }
+var ele = document.querySelector('#Ve');
 var vem1 = new VE({
+    el: ele,
     data: {
         a: 'this is a',
         b: Date(),
