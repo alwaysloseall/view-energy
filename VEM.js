@@ -7,7 +7,11 @@ var vem1 = new VE({
     data: {
         a: 'this is a',
         b: Date(),
-        c: 'asdasdsad'
+        c: 'asdasdsad',
+        d: {
+            d1: 'd1d1d1',
+            d2: 'd2d2d2'
+        }
     },
     methods: {
         showHello: function (data, test) { 

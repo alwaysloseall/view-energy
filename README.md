@@ -65,4 +65,6 @@ a view-model Driver
         DEBUG: false //关闭debug，默认为开启
     }
 ```
+### VE.reload()
+> ```funtion```手动执行一次view同步，慎用，特别费性能
 ### 哇我要哭出来了 以后再写！！

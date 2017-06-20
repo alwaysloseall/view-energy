@@ -24,6 +24,52 @@
          * __virtualDom[key] = [{ node: HTMLElement }, { node: HTMLElement, html: @string }]
          */
 
+         //---绑定data下的key: [Object]
+         function __bindKeyForObject(key) {
+             if ('object' == typeof data[key]) {
+                for (var _key in data[key]) {
+                    (function () {
+                        Object.defineProperty(data[key], _key, {
+                            configurable: false,
+                            enumerable: false,
+                            get: function () {
+                                return data[key][_key];
+                            },
+                            set: function (newValue) {
+                                //---局部渲染view
+                                var _this = this, oldValue = data[key][_key];
+                                if (data[key][_key] != newValue) {
+                                    VE.Debuger('sync-start');
+                                    data[key][_key] = newValue;
+                                    VE.Debuger('setNewValue', newValue);
+                                    if('undefined' != typeof _this.__virtualDom[key + '.' + _key] && _this.__virtualDom[key + '.' + _key].length > 0) {
+                                        _this.__virtualDom[key + '.' + _key].forEach(function(element) {
+                                        if (!element.html) { //---使用指令绑定的情况
+                                            element.node.innerHTML = newValue;
+                                        } else { //---使用{{ javascript }}形式绑定的情况
+                                            element.node.innerHTML = element.html.replace(/(\{\{\s*)(\S*)(\s*\}\})/, function (match, p1, p2, p3) {
+                                                    return eval('_this.' + p2);;
+                                            });
+                                        }
+                                        });
+                                    }
+                                    // if (hasWatch) {
+                                    //     if (typeof watch[key] == 'function') {
+                                    //         VE.Debuger('watchValue', { key: key, oldValue: oldValue, newValue: newValue });
+                                    //         watch[key].call(this, oldValue, newValue);
+                                    //         // allowWatch = false;
+                                    //     }
+                                    // }
+                                    VE.Debuger('sync-end');
+                                }
+                                //---end局部渲染view
+                            }
+                        });
+                    }).call(this);
+                }   
+            }
+         }
+
         
         if (typeof options != 'object') {  throw new Error('Constructor function VE argument[0] must be an object'); }
         if (typeof options.el != 'undefined') {
@@ -52,18 +98,18 @@
                         },
                         set: function (newValue) {
                             //---局部渲染view
-                            var that = this, oldValue = data[key];
+                            var _this = this, oldValue = data[key];
                             if (data[key] != newValue) {
                                 VE.Debuger('sync-start');
                                 data[key] = newValue;
                                 VE.Debuger('setNewValue', newValue);
-                                if('undefined' != typeof that.__virtualDom[key] && that.__virtualDom[key].length > 0) {
-                                    that.__virtualDom[key].forEach(function(element) {
+                                if('undefined' != typeof _this.__virtualDom[key] && _this.__virtualDom[key].length > 0) {
+                                    _this.__virtualDom[key].forEach(function(element) {
                                     if (!element.html) { //---使用指令绑定的情况
                                         element.node.innerHTML = newValue;
                                     } else { //---使用{{ javascript }}形式绑定的情况
                                         element.node.innerHTML = element.html.replace(/(\{\{\s*)(\S*)(\s*\}\})/, function (match, p1, p2, p3) {
-                                                return that[p2];
+                                                return _this[p2];
                                         });
                                     }
                                     });
@@ -75,11 +121,13 @@
                                         // allowWatch = false;
                                     }
                                 }
+                                // __bindKeyForObject.call(this, key);
                                 VE.Debuger('sync-end');
                             }
                             //---end局部渲染view
                         }
                     });
+                    // __bindKeyForObject.call(this, key);
                 }).call(this, key);
             }
 
@@ -113,7 +161,9 @@
 
     //---实例特殊方法
 
-    VE.prototype.$reload = traversal;
+    VE.prototype.$reload = function () {
+        
+    };
 
     //---end实例特殊方法
 
@@ -160,31 +210,32 @@
      */
     function traversal(node) { //---第一次渲染时调用，将data和__virtualDom关联
         if ('undefined' == typeof node) { node = document.body; }
-        var that = this;
+        var _this = this;
         //对node的处理
         if(node && node.nodeType === 1) {
             var veBind = node.getAttribute('ve-bind'), html = node.innerHTML, reg = /(\{\{\s*)(\S*)(\s*\}\})/,
-                veClick = node.getAttribute('ve-click');
+                veClick = node.getAttribute('ve-click'), value = undefined;
             if (typeof veBind == 'string') { //---veBind
-                var value = that[veBind];
-                if (!that.__virtualDom[veBind]) {
-                    that.__virtualDom[veBind] = [
-                       { node: node }
+                value = eval('_this.' + veBind);
+                if (!_this.__virtualDom[veBind]) {
+                    _this.__virtualDom[veBind] = [
+                        { node: node }
                     ]
                 } else {
-                    that.__virtualDom[veBind].push({ node: node });
+                    _this.__virtualDom[veBind].push({ node: node });
                 }
                 node.innerHTML = value;
             } else if (node.tagName != 'BODY' && reg.test(html)) { //--- {{ javascript }}
                 html = html.replace(reg, function (match, p1, p2, p3) {
-                    if (!that.__virtualDom[p2]) {
-                        that.__virtualDom[p2] = [
+                    value = eval('_this.' + p2);
+                    if (!_this.__virtualDom[p2]) {
+                        _this.__virtualDom[p2] = [
                             { node: node, html: html }
                         ]
                     } else {
-                        that.__virtualDom[p2].push({ node: node, html: html });
+                        _this.__virtualDom[p2].push({ node: node, html: html });
                     }
-                    return that[p2];
+                    return value;
                 });
                 node.innerHTML = html;
             }
@@ -197,12 +248,10 @@
                 }
                 for(var key in params){
                     console.log(params[key]);
-                    if (that[params[key]]) { params[key] = 'this.' + params[key]; }
+                    if (_this[params[key]]) { params[key] = 'this.' + params[key]; }
                 }
-                console.log(f);
-                console.log(params);
 
-                var handleClick = that[f];
+                var handleClick = _this[f];
                 var handleParams = params.join(',');
                 //===添加事件，以及写入__virtualDom
                 var handleClick2 = 'handleClick.bind(this, ' + handleParams + ')';
@@ -214,7 +263,7 @@
             item = childNodes[i];
             if(item.nodeType === 1){
                 //递归先序遍历子节点
-                traversal.call(that, item);
+                traversal.call(_this, item);
             }
         }
     }
