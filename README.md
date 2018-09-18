@@ -65,4 +65,22 @@ a view-model Driver
         DEBUG: false //关闭debug，默认为开启
     }
 ```
+### VE directive
+1. ve-bind
+> 双向绑定一个data, data change将会更新view
+```javascript
+<element ve-bind="a" /> //绑定a
+```
+2. ve-click
+> 为元素添加click时间监听器
+```javascript
+new VE({
+    methods: {
+        handleClick(val) {
+            console.log('handleClick:', val);
+        }
+    }
+})
+<element ve-click="handleClick("test")" /> //绑定a
+```
 ### 哇我要哭出来了 以后再写！！
